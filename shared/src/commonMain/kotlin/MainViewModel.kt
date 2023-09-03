@@ -93,20 +93,15 @@ class MainViewModel : ViewModel() {
     private suspend fun getGoodsByOperationIdAsync(operationId: String): List<Good> {
         val url = "$baseUrl/api/goods/operation/$operationId"
 
-        try {
+        return try {
             val response: HttpResponse = httpClient.get(url)
-
             if (response.status.isSuccess()) {
-                val goods : List<Good> = response.body()
-
-                return goods
+                response.body()
             } else {
-                // Handle the case when the request was not successful
-                return emptyList()
+                emptyList()
             }
         } catch (e: Exception) {
-            // Handle network or other errors
-            return emptyList()
+            emptyList()
         }
     }
 
