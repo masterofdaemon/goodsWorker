@@ -1,14 +1,12 @@
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.call.receive
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.utils.EmptyContent.contentType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,6 +18,8 @@ import kotlinx.serialization.json.Json
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.util.InternalAPI
+import kotlinx.coroutines.CoroutineScope
 
 @Serializable
 enum class Status {
@@ -28,16 +28,21 @@ enum class Status {
     sold,
     buyed
 }
+@Serializable
+data class Good (val id: String?, val description: String,
+                 val price: Int, val url:String,
+                 val date: String)
 
 @Serializable
 data class Operation(val id: String?, val name: String, val status: Status)
 
 data class OperationsUiState(
-    val operations: List<Operation> = emptyList()
+    val operations: List<Operation> = emptyList(),
+    val goods : List<Good> = emptyList()
 )
 
 class MainViewModel : ViewModel() {
-
+    private val baseUrl = "http://192.168.138.2"
     private val httpClient = HttpClient(CIO) {
         expectSuccess = true
         install(ContentNegotiation) {
@@ -60,6 +65,7 @@ class MainViewModel : ViewModel() {
         runBlocking {
             launch(Dispatchers.Default) {
                 val operations = getOperations()
+                if (operations.isEmpty()) return@launch
                 _uiState.update {
                     it.copy(operations = operations)
                 }
@@ -68,25 +74,49 @@ class MainViewModel : ViewModel() {
     }
 
     private suspend fun getOperations(): List<Operation> {
-        val url = "http://192.168.0.246/api/operations"
+        val url = "$baseUrl/api/operations"
         val response: HttpResponse = httpClient.get(url)
         return response.body()
     }
 
-//    fun addOperation(operation: Operation) {
-//        val updatedOperations = _uiState.value.operations.toMutableList()
-//        updatedOperations.add(operation)
-//        _uiState.value = _uiState.value.copy(operations = updatedOperations)
-//    }
+    fun updateGoodsByOperationId(operationId: String) {
+        CoroutineScope(Dispatchers.Default).launch {
+            val goods = getGoodsByOperationIdAsync(operationId)
+            if (goods.isNotEmpty()) {
+                _uiState.update {
+                    it.copy(goods = goods)
+                }
+            }
+        }
+    }
+    @OptIn(InternalAPI::class)
+    private suspend fun getGoodsByOperationIdAsync(operationId: String): List<Good> {
+        val url = "$baseUrl/api/goods/operation/$operationId"
+
+        try {
+            val response: HttpResponse = httpClient.get(url)
+
+            if (response.status.isSuccess()) {
+                val goods : List<Good> = response.body()
+
+                return goods
+            } else {
+                // Handle the case when the request was not successful
+                return emptyList()
+            }
+        } catch (e: Exception) {
+            // Handle network or other errors
+            return emptyList()
+        }
+    }
 
     fun addOperation(operation: Operation) {
-        viewModelScope.launch {
+        CoroutineScope(Dispatchers.Default).launch {
             try {
-                val response: HttpResponse = httpClient.post("http://your-server-url/api/operations") {
+                val response: HttpResponse = httpClient.post("$baseUrl/api/operations") {
                     contentType(ContentType.Application.Json)
                     setBody(operation)
                 }
-
                 if (response.status.isSuccess()) {
                     // Successfully added the operation to the server
                     val updatedOperations = _uiState.value.operations.toMutableList()

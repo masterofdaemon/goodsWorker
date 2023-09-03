@@ -7,5 +7,5 @@ actual fun getPlatformName(): String = "iOS"
 fun MainViewController() = ComposeUIViewController {
     val mainViewModel = getViewModel(Unit, viewModelFactory { MainViewModel() })
 
-    App(mainViewModel)
+    App(mainViewModel, ctx)
 }
