@@ -73,6 +73,7 @@ fun AddOperationScreen(
                         channel.trySend(222)
                         return@Button
                     }
+                    newOperationName = replaceSymbols(newOperationName)
                     val newOperation = Operation(
                         id = null,
                         name = newOperationName,
@@ -87,5 +88,14 @@ fun AddOperationScreen(
             }
 
         }
+    }
+}
+
+fun replaceSymbols (input:String) : String {
+    val symbol = """""""
+    return when {
+        input.contains("'") -> input.replaceFirst("'"," дюймов")
+        input.contains('"') -> input.replaceFirst(symbol, " дюймов")
+        else -> input
     }
 }
