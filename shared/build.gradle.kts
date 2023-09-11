@@ -31,9 +31,9 @@ kotlin {
                 implementation(compose.material3)
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
-                implementation("io.ktor:ktor-client-core:2.3.3")
+                implementation("io.ktor:ktor-client-core:2.3.4")
                 implementation("io.ktor:ktor-client-cio:2.3.3")
-                implementation("io.ktor:ktor-client-content-negotiation:2.3.3")
+                implementation("io.ktor:ktor-client-content-negotiation:2.3.4")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
                 api("dev.icerock.moko:mvvm-core:0.16.1") // only ViewModel, EventsDispatcher, Dispatchers.UI
@@ -46,7 +46,7 @@ kotlin {
 
                 api("androidx.activity:activity-compose:1.7.2")
                 api("androidx.appcompat:appcompat:1.6.1")
-                api("androidx.core:core-ktx:1.10.1")
+                api("androidx.core:core-ktx:1.12.0")
             }
         }
         val iosX64Main by getting
@@ -60,7 +60,7 @@ kotlin {
         }
         val desktopMain by getting {
             dependencies {
-                implementation("org.slf4j:slf4j-api:1.7.36")
+                implementation("org.slf4j:slf4j-api:2.0.0")
                 implementation("org.slf4j:slf4j-simple:1.6.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 

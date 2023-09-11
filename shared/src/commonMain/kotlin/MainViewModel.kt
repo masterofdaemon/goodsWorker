@@ -1,12 +1,15 @@
+
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.get
-import io.ktor.client.request.post
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.client.statement.HttpResponse
+import io.ktor.util.InternalAPI
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,11 +18,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.util.InternalAPI
-import kotlinx.coroutines.CoroutineScope
 
 @Serializable
 enum class Status {
@@ -42,7 +40,7 @@ data class OperationsUiState(
 )
 
 class MainViewModel : ViewModel() {
-    private val baseUrl = "http://192.168.138.2"
+    private val baseUrl = "http://185.94.164.139:8080"
     private val httpClient = HttpClient(CIO) {
         expectSuccess = true
         install(ContentNegotiation) {
